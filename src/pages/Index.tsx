@@ -183,9 +183,9 @@ const Index = () => {
         <div className="container mx-auto px-4 text-center">
           <h2 className="text-3xl font-bold mb-4">Ready to Enhance Your PDF Workflow?</h2>
           <p className="text-lg mb-8 max-w-2xl mx-auto">
-            Join thousands of satisfied users who trust BlueWave PDF for their document needs.
+            Join thousands of satisfied users who trust All In One PDF Tool for their document needs.
           </p>
-          <Link to="/signup">
+          <Link to="/tools">
             <Button size="lg" variant="secondary" className="bg-white text-primary-700 hover:bg-gray-100">
               Get Started — It's Free
             </Button>

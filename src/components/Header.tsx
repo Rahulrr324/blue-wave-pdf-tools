@@ -12,16 +12,13 @@ const Header = () => {
             P
           </div>
           <span className="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-primary-700 to-primary-500">
-            BlueWave PDF
+            All In One PDF Tool
           </span>
         </Link>
         
         <nav className="hidden md:flex items-center space-x-6">
           <Link to="/tools" className="text-gray-700 hover:text-primary-600 transition-colors">
             Tools
-          </Link>
-          <Link to="/pricing" className="text-gray-700 hover:text-primary-600 transition-colors">
-            Pricing
           </Link>
           <Link to="/help" className="text-gray-700 hover:text-primary-600 transition-colors">
             Help
@@ -34,11 +31,6 @@ const Header = () => {
           </Link>
           <Link to="/signup" className="hidden md:inline-block">
             <Button variant="outline" size="sm">Sign Up</Button>
-          </Link>
-          <Link to="/premium">
-            <Button size="sm" className="bg-gradient-to-r from-primary-600 to-primary-500 hover:from-primary-700 hover:to-primary-600">
-              Upgrade to Premium
-            </Button>
           </Link>
         </div>
       </div>
