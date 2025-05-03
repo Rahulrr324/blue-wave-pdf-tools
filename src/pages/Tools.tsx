@@ -1,15 +1,9 @@
 
 import React from 'react';
 import Layout from '../components/Layout';
-import Hero from '../components/Hero';
-import Features from '../components/Features';
-import Testimonials from '../components/Testimonials';
-import Faqs from '../components/Faqs';
 import ToolCard from '../components/ToolCard';
-import { Link } from 'react-router-dom';
-import { Button } from '@/components/ui/button';
 
-// Import tool icons
+// Import all tool icons
 import {
   MergePdfIcon,
   CompressPdfIcon,
@@ -28,132 +22,171 @@ import {
   PdfMetadataIcon
 } from '../components/ToolIcons';
 
-const Index = () => {
-  const popularTools = [
+const Tools = () => {
+  const allTools = [
     {
       title: 'Merge PDF',
       description: 'Combine multiple PDFs into one document',
       icon: <MergePdfIcon />,
       to: '/merge-pdf',
-      buttonText: 'Merge'
+      buttonText: 'Merge',
+      category: 'Basic'
     },
     {
       title: 'Compress PDF',
       description: 'Reduce PDF file size without losing quality',
       icon: <CompressPdfIcon />,
       to: '/compress-pdf',
-      buttonText: 'Compress'
+      buttonText: 'Compress',
+      category: 'Basic'
     },
     {
       title: 'Convert to PDF',
       description: 'Convert Word, Excel, PPT or images to PDF',
       icon: <ConvertToPdfIcon />,
       to: '/convert-to-pdf',
-      buttonText: 'Convert'
+      buttonText: 'Convert',
+      category: 'Convert'
     },
     {
       title: 'PDF to Word',
       description: 'Convert PDF documents to editable Word files',
       icon: <PdfToWordIcon />,
       to: '/pdf-to-word',
-      buttonText: 'Convert'
+      buttonText: 'Convert',
+      category: 'Convert'
     },
     {
       title: 'Split PDF',
       description: 'Extract pages or split PDF into multiple files',
       icon: <SplitPdfIcon />,
       to: '/split-pdf',
-      buttonText: 'Split'
+      buttonText: 'Split',
+      category: 'Basic'
     },
     {
       title: 'Protect PDF',
       description: 'Add password protection to your PDF files',
       icon: <ProtectPdfIcon />,
       to: '/protect-pdf',
-      buttonText: 'Protect'
-    }
-  ];
-
-  const allTools = [
-    ...popularTools,
+      buttonText: 'Protect',
+      category: 'Security'
+    },
     {
       title: 'Unlock PDF',
       description: 'Remove password protection from PDF files',
       icon: <UnlockPdfIcon />,
       to: '/unlock-pdf',
-      buttonText: 'Unlock'
+      buttonText: 'Unlock',
+      category: 'Security'
     },
     {
       title: 'Rotate PDF',
       description: 'Rotate PDF pages to the correct orientation',
       icon: <RotatePdfIcon />,
       to: '/rotate-pdf',
-      buttonText: 'Rotate'
+      buttonText: 'Rotate',
+      category: 'Edit'
     },
     {
       title: 'Edit PDF',
       description: 'Add text, images and annotations to PDF files',
       icon: <EditPdfIcon />,
       to: '/edit-pdf',
-      buttonText: 'Edit'
+      buttonText: 'Edit',
+      category: 'Edit'
     },
     {
       title: 'Reorder Pages',
       description: 'Rearrange the order of pages in PDF files',
       icon: <ReorderPagesIcon />,
       to: '/reorder-pages',
-      buttonText: 'Reorder'
+      buttonText: 'Reorder',
+      category: 'Edit'
     },
     {
       title: 'Add Page Numbers',
       description: 'Add customizable page numbers to PDF documents',
       icon: <AddPageNumbersIcon />,
       to: '/add-page-numbers',
-      buttonText: 'Number'
+      buttonText: 'Number',
+      category: 'Edit'
     },
     {
       title: 'Add Watermark',
       description: 'Add text or image watermarks to PDF files',
       icon: <AddWatermarkIcon />,
       to: '/add-watermark',
-      buttonText: 'Watermark'
+      buttonText: 'Watermark',
+      category: 'Edit'
     },
     {
       title: 'PDF to Image',
       description: 'Convert PDF pages to JPG, PNG or TIFF images',
       icon: <PdfToImageIcon />,
       to: '/pdf-to-image',
-      buttonText: 'Convert'
+      buttonText: 'Convert',
+      category: 'Convert'
     },
     {
       title: 'Image to PDF',
       description: 'Convert JPG, PNG or TIFF images to PDF',
       icon: <ImageToPdfIcon />,
       to: '/image-to-pdf',
-      buttonText: 'Convert'
+      buttonText: 'Convert',
+      category: 'Convert'
     },
     {
       title: 'PDF Metadata',
       description: 'View and edit PDF document properties',
       icon: <PdfMetadataIcon />,
       to: '/pdf-metadata',
-      buttonText: 'Edit'
+      buttonText: 'Edit',
+      category: 'Advanced'
     }
   ];
 
+  const categories = ['All', 'Basic', 'Convert', 'Edit', 'Security', 'Advanced'];
+  const [activeCategory, setActiveCategory] = React.useState('All');
+
+  const filteredTools = activeCategory === 'All'
+    ? allTools
+    : allTools.filter(tool => tool.category === activeCategory);
+
   return (
     <Layout>
-      <Hero />
-      
-      {/* Popular Tools Section */}
-      <section className="py-16">
+      <section className="py-12 md:py-16 bg-primary-50">
         <div className="container mx-auto px-4">
-          <h2 className="text-2xl md:text-3xl font-bold text-center mb-4">Popular PDF Tools</h2>
-          <p className="text-center text-gray-600 mb-10 max-w-3xl mx-auto">
-            Our most frequently used tools to help you manage and manipulate your PDF files efficiently.
-          </p>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            {popularTools.map((tool, index) => (
+          <div className="max-w-3xl mx-auto text-center">
+            <h1 className="text-3xl md:text-4xl font-bold mb-4">All PDF Tools</h1>
+            <p className="text-lg text-gray-700">
+              Our complete collection of PDF tools to help you work more efficiently with your documents.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <section className="py-12">
+        <div className="container mx-auto px-4">
+          {/* Category filters */}
+          <div className="flex flex-wrap gap-2 justify-center mb-10">
+            {categories.map(category => (
+              <button
+                key={category}
+                onClick={() => setActiveCategory(category)}
+                className={`px-4 py-2 rounded-full text-sm font-medium transition-colors
+                  ${activeCategory === category 
+                    ? 'bg-primary-100 text-primary-800 border border-primary-200' 
+                    : 'bg-gray-100 text-gray-700 border border-transparent hover:bg-gray-200'}`}
+              >
+                {category}
+              </button>
+            ))}
+          </div>
+
+          {/* Tools grid */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+            {filteredTools.map((tool, index) => (
               <ToolCard
                 key={index}
                 title={tool.title}
@@ -164,36 +197,10 @@ const Index = () => {
               />
             ))}
           </div>
-          <div className="text-center mt-10">
-            <Link to="/tools">
-              <Button variant="outline" size="lg">
-                View All Tools
-              </Button>
-            </Link>
-          </div>
-        </div>
-      </section>
-      
-      <Features />
-      <Testimonials />
-      <Faqs />
-      
-      {/* CTA Section */}
-      <section className="py-16 bg-primary-600 text-white">
-        <div className="container mx-auto px-4 text-center">
-          <h2 className="text-3xl font-bold mb-4">Ready to Enhance Your PDF Workflow?</h2>
-          <p className="text-lg mb-8 max-w-2xl mx-auto">
-            Join thousands of satisfied users who trust BlueWave PDF for their document needs.
-          </p>
-          <Link to="/signup">
-            <Button size="lg" variant="secondary" className="bg-white text-primary-700 hover:bg-gray-100">
-              Get Started — It's Free
-            </Button>
-          </Link>
         </div>
       </section>
     </Layout>
   );
 };
 
-export default Index;
+export default Tools;

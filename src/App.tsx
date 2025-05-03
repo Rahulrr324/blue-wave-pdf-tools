@@ -1,11 +1,18 @@
+
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Index from "./pages/Index";
+import Tools from "./pages/Tools";
+import MergePdf from "./pages/MergePdf";
+import CompressPdf from "./pages/CompressPdf";
+import ConvertToPdf from "./pages/ConvertToPdf";
+import PdfToWord from "./pages/PdfToWord";
 import NotFound from "./pages/NotFound";
 
+// Create a QueryClient for React Query
 const queryClient = new QueryClient();
 
 const App = () => (
@@ -16,6 +23,11 @@ const App = () => (
       <BrowserRouter>
         <Routes>
           <Route path="/" element={<Index />} />
+          <Route path="/tools" element={<Tools />} />
+          <Route path="/merge-pdf" element={<MergePdf />} />
+          <Route path="/compress-pdf" element={<CompressPdf />} />
+          <Route path="/convert-to-pdf" element={<ConvertToPdf />} />
+          <Route path="/pdf-to-word" element={<PdfToWord />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
