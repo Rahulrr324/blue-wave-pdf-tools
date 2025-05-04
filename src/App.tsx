@@ -12,6 +12,9 @@ import ConvertToPdf from "./pages/ConvertToPdf";
 import PdfToWord from "./pages/PdfToWord";
 import AddPageNumbers from "./pages/AddPageNumbers";
 import Help from "./pages/Help";
+import Login from "./pages/Login";
+import Signup from "./pages/Signup";
+import VerifyEmail from "./pages/VerifyEmail";
 import NotFound from "./pages/NotFound";
 
 // Create a QueryClient for React Query
@@ -32,6 +35,9 @@ const App = () => (
           <Route path="/pdf-to-word" element={<PdfToWord />} />
           <Route path="/add-page-numbers" element={<AddPageNumbers />} />
           <Route path="/help" element={<Help />} />
+          <Route path="/login" element={<Login />} />
+          <Route path="/signup" element={<Signup />} />
+          <Route path="/verify-email" element={<VerifyEmail />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
