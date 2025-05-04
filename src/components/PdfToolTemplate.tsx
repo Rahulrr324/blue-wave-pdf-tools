@@ -145,33 +145,31 @@ const PdfToolTemplate: React.FC<PdfToolTemplateProps> = ({
     if (!result) return;
     
     try {
-      // Create a proper PDF blob with correct MIME type
-      const pdfBlob = new Blob([result], { type: 'application/pdf' });
-      
-      // Create a temporary URL
-      const url = URL.createObjectURL(pdfBlob);
+      // Create a download URL for the blob
+      const url = URL.createObjectURL(result);
       
       // Create an invisible download link
       const link = document.createElement('a');
       link.href = url;
-      link.download = fileName || `processed_${new Date().toISOString().slice(0, 10)}.pdf`;
+      
+      // Use original file name or generate one
+      const downloadFileName = fileName || `processed_${new Date().getTime()}.pdf`;
+      
+      link.download = downloadFileName;
       document.body.appendChild(link);
       
       // Trigger the download
       link.click();
       
       // Clean up
-      document.body.removeChild(link);
-      
-      // Short delay before revoking the URL to ensure download starts
       setTimeout(() => {
         URL.revokeObjectURL(url);
+        document.body.removeChild(link);
       }, 100);
 
-      // Confirmation toast
       toast({
         title: "Download started",
-        description: "Your file is downloading. Please check your downloads folder.",
+        description: "Your file is being downloaded.",
       });
     } catch (error) {
       console.error("Download error:", error);

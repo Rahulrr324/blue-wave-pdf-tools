@@ -1,4 +1,3 @@
-
 // This is a client-side service for handling PDF operations
 // For a production app, some of these operations would be better handled server-side
 // but this implementation demonstrates how to handle the UI flow
@@ -14,28 +13,20 @@ const wait = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
 
 // Helper to create a simple PDF using a data URL (for demo purposes)
 const createDummyPdf = async (): Promise<Blob> => {
-  // This is a minimal valid PDF file encoded as base64
-  // A more robust PDF containing text "Processed by All In One PDF Tool"
+  // A valid PDF file containing text "Processed by All In One PDF Tool"
   const pdfBase64 = `
-    JVBERi0xLjcKJeLjz9MKNSAwIG9iago8PCAvVHlwZSAvUGFnZSAvUGFyZW50IDEgMCBSIC9MYXN0
-    TW9kaWZpZWQgKEQgXDI1XDM3NVwyMjdcMzc1XDIyN1wzNzVcMjI3IDIwXDIzNFwzNzVcMjI3XDM3
-    NVwyMjcpIC9SZXNvdXJjZXMgMiAwIFIgL01lZGlhQm94IFswLjAwMDAwMCAwLjAwMDAwMCA1OTUu
-    MjgwMDAwMCA4NDEuODkwMDAwXSAvQ29udGVudHMgNiAwIFIgPj4KZW5kb2JqCjYgMCBvYmoKPDwg
-    L0ZpbHRlciAvRmxhdGVEZWNvZGUgL0xlbmd0aCAyNDQgPj4Kc3RyZWFtCnicfY/NasMwEITvfoqc
-    rIPWv5IviWmsEEhd6qQLdTCOHAjYDnHo2/c7aZpCoQepRTMzo1lp1OwmAo0wREeOEqJg9GScj8Eo
-    ja09kwRjlI5ZExNDvdnFDMZJaJy3tZKUSvS1YIbKLXvC0Asx7QbruePdd0zQRcF6hmCUsYsIuqZ0
-    +NFfgdCFxId8TIfZkmGAeQe54dJZUUDW/6Mj6SK8BCPQFnPr2tVt3xMFzqrSvXDlolz+2GsmJCKP
-    0ZlQ0YN0fUScY7zxslXm/fqZNbvp9bpdlY9b3Wm7qIaFQ/0LoQSipAplbmRzdHJlYW0KZW5kb2Jq
-    CjIgMCBvYmoKPDwgL1R5cGUgL1BhZ2VzIC9LaWRzIFsgNSAwIFIgXSAvQ291bnQgMSA+PgplbmRv
-    YmoKMyAwIG9iago8PCAvVHlwZSAvQ2F0YWxvZyAvUGFnZXMgMiAwIFIgPj4KZW5kb2JqCjQgMCBv
-    YmoKKFByb2Nlc3NlZCBieSBBbGwgSW4gT25lIFBERiBUb29sKQplbmRvYmoKMSAwIG9iago8PCAv
-    VGl0bGUgNFwwMDBSIC9Qcm9kdWNlciAoUERGIFRvb2wpIC9DcmVhdG9yIChQREYgVG9vbCkgL0Ny
-    ZWF0aW9uRGF0ZSAoRDoyMDIxMDkyMTE1MTgwMS0wNycwMCcpID4+CmVuZG9iagp4cmVmCjAgNwow
-    MDAwMDAwMDAwIDY1NTM1IGYgCjAwMDAwMDA2MzkgMDAwMDAgbiAKMDAwMDAwMDQzNSAwMDAwMCBu
-    IAowMDAwMDAwNDk0IDAwMDAwIG4gCjAwMDAwMDA1NDMgMDAwMDAgbiAKMDAwMDAwMDAxNSAwMDAw
-    MCBuIAowMDAwMDAwMTQ0IDAwMDAwIG4gCnRyYWlsZXIKPDwgL1NpemUgNyAvUm9vdCAzIDAgUiAv
-    SW5mbyAxIDAgUiAvSUQgWyA8MDZmZGViY2U5ZDM0ZWM5ZTVkZWEzMWZhZGE4MTQ4NmM+CjwwNmZk
-    ZWJjZTlkMzRlYzllNWRlYTMxZmFkYTgxNDg2Yz4gXSA+PgpzdGFydHhyZWYKNzUwCiUlRU9GCg==
+    JVBERi0xLjcKJcjTycjMCjEgMCBvYmoKPDwgL1R5cGUgL0NhdGFsb2cgL1BhZ2VzIDIgMCBSID4+
+    CmVuZG9iagoyIDAgb2JqCjw8L1R5cGUvUGFnZXMvQ291bnQgMS9LaWRzWyAzIDAgUiBdPj4KZW5k
+    b2JqCjMgMCBvYmoKPDwvVHlwZS9QYWdlL1BhcmVudCAyIDAgUiAvUmVzb3VyY2VzPDwvRm9udDw8
+    L0YxIDQgMCBSID4+Pj4vQ29udGVudHMgNSAwIFI+PgplbmRvYmoKNCAwIG9iago8PC9UeXBlL0Zv
+    bnQvU3VidHlwZS9UeXBlMS9CYXNlRm9udC9IZWx2ZXRpY2E+PgplbmRvYmoKNSAwIG9iago8PC9M
+    ZW5ndGggNzcgPj4Kc3RyZWFtCkJUCjcwIDcwMCBUZAovRjEgMjAgVGYKKFByb2Nlc3NlZCBieSBB
+    bGwgSW4gT25lIFBERiBUb29sKSBUagpFVAplbmRzdHJlYW0KZW5kb2JqCnhyZWYKMCA2CjAwMDAw
+    MDAwMDAgNjU1MzUgZiAKMDAwMDAwMDAxNSAwMDAwMCBuIAowMDAwMDAwMDY4IDAwMDAwIG4gCjAw
+    MDAwMDAxMjMgMDAwMDAgbiAKMDAwMDAwMDIxMCAwMDAwMCBuIAowMDAwMDAwMjcxIDAwMDAwIG4g
+    CnRyYWlsZXIKPDwvU2l6ZSA2L1Jvb3QgMSAwIFIvSUQgWzw1Mjc3NGMyNDkzZGMxNjE5ZmJlMWYy
+    ODgyZDYwMTQwZT48NTI3NzRjMjQ5M2RjMTYxOWZiZTFmMjg4MmQ2MDE0MGU+XT4+CnN0YXJ0eHJl
+    Zgo0MDUKJSVFTkQK
   `;
 
   try {
@@ -50,8 +41,8 @@ const createDummyPdf = async (): Promise<Blob> => {
     return new Blob([bytes], { type: 'application/pdf' });
   } catch (error) {
     console.error("Error creating PDF:", error);
-    // Fallback to a very simple PDF if there's an error with the complex one
-    const simplePdf = '%PDF-1.4\n1 0 obj\n<<\n/Type /Catalog\n/Pages 2 0 R\n>>\nendobj\n2 0 obj\n<<\n/Type /Pages\n/Kids [3 0 R]\n/Count 1\n>>\nendobj\n3 0 obj\n<<\n/Type /Page\n/Parent 2 0 R\n/Resources 4 0 R\n/MediaBox [0 0 612 792]\n/Contents 5 0 R\n>>\nendobj\n4 0 obj\n<<\n/Font <<\n/F1 6 0 R\n>>\n>>\nendobj\n5 0 obj\n<<\n/Length 44\n>>\nstream\nBT\n/F1 24 Tf\n100 700 Td\n(Processed PDF) Tj\nET\nendstream\nendobj\n6 0 obj\n<<\n/Type /Font\n/Subtype /Type1\n/BaseFont /Helvetica\n>>\nendobj\nxref\n0 7\n0000000000 65535 f\n0000000009 00000 n\n0000000058 00000 n\n0000000115 00000 n\n0000000210 00000 n\n0000000251 00000 n\n0000000345 00000 n\ntrailer\n<<\n/Size 7\n/Root 1 0 R\n>>\nstartxref\n412\n%%EOF';
+    // Fallback to a very simple PDF
+    const simplePdf = '%PDF-1.3\n1 0 obj\n<< /Type /Catalog /Pages 2 0 R >>\nendobj\n2 0 obj\n<< /Type /Pages /Kids [3 0 R] /Count 1 >>\nendobj\n3 0 obj\n<< /Type /Page /Parent 2 0 R /Resources << /Font << /F1 4 0 R >> >> /MediaBox [0 0 612 792] /Contents 5 0 R >>\nendobj\n4 0 obj\n<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>\nendobj\n5 0 obj\n<< /Length 68 >>\nstream\nBT\n/F1 24 Tf\n100 700 Td\n(PDF Tool - Processed Document) Tj\nET\nendstream\nendobj\nxref\n0 6\n0000000000 65535 f\n0000000009 00000 n\n0000000058 00000 n\n0000000115 00000 n\n0000000232 00000 n\n0000000300 00000 n\ntrailer\n<< /Size 6 /Root 1 0 R >>\nstartxref\n417\n%%EOF';
     const bytes = new TextEncoder().encode(simplePdf);
     return new Blob([bytes], { type: 'application/pdf' });
   }
@@ -106,9 +97,13 @@ export const pdfToWord = async (file: File): Promise<Blob> => {
     // Simulate processing time
     await wait(3000);
     
-    // In a real implementation, we would convert PDF to Word
-    // Here we just return a dummy Word file (actually just a binary blob)
-    return new Blob(['Word document content'], { type: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' });
+    // For demo, return a simple Word document
+    const docxData = 'PK\u0003\u0004\u0014\u0000\b\u0000\u0000\u0000\u0000\u0000!\u0000���\u0010\u0000\u0000\u0000\u0010\u0000\u0000\u0000\u0000word/document.xml<?xml version="1.0" encoding="UTF-8" standalone="yes"?><w:document xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main"><w:body><w:p><w:r><w:t>Converted Document</w:t></w:r></w:p></w:body></w:document>PK\u0001\u0002\u0014\u0000\u0014\u0000\b\u0000\u0000\u0000\u0000\u0000!\u0000���\u0010\u0000\u0000\u0000\u0010\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000word/document.xmlPK\u0005\u0006\u0000\u0000\u0000\u0000\u0001\u0000\u0001\u0000.\u0000\u0000\u00008\u0000\u0000\u0000\u0000\u0000';
+    const bytes = new Uint8Array(docxData.length);
+    for (let i = 0; i < docxData.length; i++) {
+        bytes[i] = docxData.charCodeAt(i);
+    }
+    return new Blob([bytes], { type: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' });
   } catch (error) {
     console.error("Error converting PDF to Word:", error);
     throw new Error("Failed to convert PDF to Word");
