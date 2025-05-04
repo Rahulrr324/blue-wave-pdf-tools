@@ -1,3 +1,4 @@
+
 // This is a client-side service for handling PDF operations
 // For a production app, some of these operations would be better handled server-side
 // but this implementation demonstrates how to handle the UI flow
@@ -14,39 +15,46 @@ const wait = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
 // Helper to create a simple PDF using a data URL (for demo purposes)
 const createDummyPdf = async (): Promise<Blob> => {
   // This is a minimal valid PDF file encoded as base64
+  // A more robust PDF containing text "Processed by All In One PDF Tool"
   const pdfBase64 = `
     JVBERi0xLjcKJeLjz9MKNSAwIG9iago8PCAvVHlwZSAvUGFnZSAvUGFyZW50IDEgMCBSIC9MYXN0
     TW9kaWZpZWQgKEQgXDI1XDM3NVwyMjdcMzc1XDIyN1wzNzVcMjI3IDIwXDIzNFwzNzVcMjI3XDM3
     NVwyMjcpIC9SZXNvdXJjZXMgMiAwIFIgL01lZGlhQm94IFswLjAwMDAwMCAwLjAwMDAwMCA1OTUu
-    MjgwMDAwMCA4NDEuODkwMDAwXSAvQmxlZWRCb3ggWzAuMDAwMDAwIDAuMDAwMDAwIDU5NS4yODAw
-    MDAgODQxLjg5MDAwMF0gL1RyaW1Cb3ggWzAuMDAwMDAwIDAuMDAwMDAwIDU5NS4yODAwMDAgODQx
-    Ljg5MDAwMF0gL0FydEJveCBbMC4wMDAwMDAgMC4wMDAwMDAgNTk1LjI4MDAwMCA4NDEuODkwMDAw
-    XSAvUm90YXRlIDAgPj4KZW5kb2JqCjYgMCBvYmoKPDwgL0xlbmd0aCA4MzYgPj4g
-    c3RyZWFtCnEKMS4wMDAwMDAgMC4wMDAwMDAgMC4wMDAwMDAgMS4wMDAwMDAgMC4wMDAwMDAgMC4w
-    MDAwMDAgY20KMSA1IDAgNSA1MCAxMCByZQpmCjAuMDAwMDAwIDAuMDAwMDAwIDAuMDAwMDAwIFJH
-    QgovRjEgMTIgVGYKWyA8NDM2RjZEPiA2IDAgUiBdIFRKClQqIDAgMCBUZApCVAoxMDAgNzUwIG1v
-    dmV0bwooUHJvY2Vzc2VkIGJ5IEFsbCBJbiBPbmUgUERGIFRvb2wpIHNob3cKRVQKQlQKMTAwIDcw
-    MCBtb3ZldG8KKFN1Y2Nlc3NmdWxseSBnZW5lcmF0ZWQgUERGIGZpbGUpIHNob3cKRVQKUQplbmRz
-    dHJlYW0KZW5kb2JqCjEgMCBvYmoKPDwgL1R5cGUgL1BhZ2VzIC9LaWRzIFsgNSAwIFIgXSAvQ291
-    bnQgMSA+PgplbmRvYmoKMyAwIG9iago8PCAvVHlwZSAvQ2F0YWxvZyAvUGFnZXMgMSAwIFIgPj4K
-    ZW5kb2JqCjQgMCBvYmoKKEFsbCBJbiBPbmUgUERGIFRvb2wgLSBQcm9jZXNzZWQgRmlsZSkKZW5k
-    b2JqCjIgMCBvYmoKPDwgL1Byb2NTZXQgWyAvUERGIC9UZXh0IC9JbWFnZUIgL0ltYWdlQyAvSW1h
-    Z2VJIF0gPj4KZW5kb2JqCnhyZWYKMCA3CjAwMDAwMDAwMDAgNjU1MzUgZg0KMDAwMDAwMTE5OCAw
-    MDAwMCBuDQowMDAwMDAxMzI3IDAwMDAwIG4NCjAwMDAwMDEyNTcgMDAwMDAgbg0KMDAwMDAwMTMw
-    NiAwMDAwMCBuDQowMDAwMDAwMDEwIDAwMDAwIG4NCjAwMDAwMDAyOTEgMDAwMDAgbg0KdHJhaWxl
-    cgo8PCAvU2l6ZSA3IC9Sb290IDMgMCBSIC9JbmZvIDQgMCBSIC9JRCBbIDw2MzY1NjM2MTYzNjU+
-    IDw5OTk5OTk5ODg4Pj4gPj4Kc3RhcnR4cmVmCjEzOTcKJSVFT0YK
+    MjgwMDAwMCA4NDEuODkwMDAwXSAvQ29udGVudHMgNiAwIFIgPj4KZW5kb2JqCjYgMCBvYmoKPDwg
+    L0ZpbHRlciAvRmxhdGVEZWNvZGUgL0xlbmd0aCAyNDQgPj4Kc3RyZWFtCnicfY/NasMwEITvfoqc
+    rIPWv5IviWmsEEhd6qQLdTCOHAjYDnHo2/c7aZpCoQepRTMzo1lp1OwmAo0wREeOEqJg9GScj8Eo
+    ja09kwRjlI5ZExNDvdnFDMZJaJy3tZKUSvS1YIbKLXvC0Asx7QbruePdd0zQRcF6hmCUsYsIuqZ0
+    +NFfgdCFxId8TIfZkmGAeQe54dJZUUDW/6Mj6SK8BCPQFnPr2tVt3xMFzqrSvXDlolz+2GsmJCKP
+    0ZlQ0YN0fUScY7zxslXm/fqZNbvp9bpdlY9b3Wm7qIaFQ/0LoQSipAplbmRzdHJlYW0KZW5kb2Jq
+    CjIgMCBvYmoKPDwgL1R5cGUgL1BhZ2VzIC9LaWRzIFsgNSAwIFIgXSAvQ291bnQgMSA+PgplbmRv
+    YmoKMyAwIG9iago8PCAvVHlwZSAvQ2F0YWxvZyAvUGFnZXMgMiAwIFIgPj4KZW5kb2JqCjQgMCBv
+    YmoKKFByb2Nlc3NlZCBieSBBbGwgSW4gT25lIFBERiBUb29sKQplbmRvYmoKMSAwIG9iago8PCAv
+    VGl0bGUgNFwwMDBSIC9Qcm9kdWNlciAoUERGIFRvb2wpIC9DcmVhdG9yIChQREYgVG9vbCkgL0Ny
+    ZWF0aW9uRGF0ZSAoRDoyMDIxMDkyMTE1MTgwMS0wNycwMCcpID4+CmVuZG9iagp4cmVmCjAgNwow
+    MDAwMDAwMDAwIDY1NTM1IGYgCjAwMDAwMDA2MzkgMDAwMDAgbiAKMDAwMDAwMDQzNSAwMDAwMCBu
+    IAowMDAwMDAwNDk0IDAwMDAwIG4gCjAwMDAwMDA1NDMgMDAwMDAgbiAKMDAwMDAwMDAxNSAwMDAw
+    MCBuIAowMDAwMDAwMTQ0IDAwMDAwIG4gCnRyYWlsZXIKPDwgL1NpemUgNyAvUm9vdCAzIDAgUiAv
+    SW5mbyAxIDAgUiAvSUQgWyA8MDZmZGViY2U5ZDM0ZWM5ZTVkZWEzMWZhZGE4MTQ4NmM+CjwwNmZk
+    ZWJjZTlkMzRlYzllNWRlYTMxZmFkYTgxNDg2Yz4gXSA+PgpzdGFydHhyZWYKNzUwCiUlRU9GCg==
   `;
 
-  // Convert base64 to binary
-  const binaryString = window.atob(pdfBase64.trim());
-  const len = binaryString.length;
-  const bytes = new Uint8Array(len);
-  for (let i = 0; i < len; i++) {
-    bytes[i] = binaryString.charCodeAt(i);
+  try {
+    // Convert base64 to binary
+    const binaryString = window.atob(pdfBase64.trim());
+    const len = binaryString.length;
+    const bytes = new Uint8Array(len);
+    for (let i = 0; i < len; i++) {
+      bytes[i] = binaryString.charCodeAt(i);
+    }
+    
+    return new Blob([bytes], { type: 'application/pdf' });
+  } catch (error) {
+    console.error("Error creating PDF:", error);
+    // Fallback to a very simple PDF if there's an error with the complex one
+    const simplePdf = '%PDF-1.4\n1 0 obj\n<<\n/Type /Catalog\n/Pages 2 0 R\n>>\nendobj\n2 0 obj\n<<\n/Type /Pages\n/Kids [3 0 R]\n/Count 1\n>>\nendobj\n3 0 obj\n<<\n/Type /Page\n/Parent 2 0 R\n/Resources 4 0 R\n/MediaBox [0 0 612 792]\n/Contents 5 0 R\n>>\nendobj\n4 0 obj\n<<\n/Font <<\n/F1 6 0 R\n>>\n>>\nendobj\n5 0 obj\n<<\n/Length 44\n>>\nstream\nBT\n/F1 24 Tf\n100 700 Td\n(Processed PDF) Tj\nET\nendstream\nendobj\n6 0 obj\n<<\n/Type /Font\n/Subtype /Type1\n/BaseFont /Helvetica\n>>\nendobj\nxref\n0 7\n0000000000 65535 f\n0000000009 00000 n\n0000000058 00000 n\n0000000115 00000 n\n0000000210 00000 n\n0000000251 00000 n\n0000000345 00000 n\ntrailer\n<<\n/Size 7\n/Root 1 0 R\n>>\nstartxref\n412\n%%EOF';
+    const bytes = new TextEncoder().encode(simplePdf);
+    return new Blob([bytes], { type: 'application/pdf' });
   }
-  
-  return new Blob([bytes], { type: 'application/pdf' });
 };
 
 // Merge multiple PDF files

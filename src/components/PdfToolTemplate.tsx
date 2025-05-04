@@ -1,4 +1,3 @@
-
 import React, { useState, useRef, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import FileDropzone from './FileDropzone';
@@ -145,30 +144,43 @@ const PdfToolTemplate: React.FC<PdfToolTemplateProps> = ({
   const handleDownload = () => {
     if (!result) return;
     
-    // Ensure we're creating a proper PDF blob with correct MIME type
-    const pdfBlob = new Blob([result], { type: 'application/pdf' });
-    
-    // Create a temporary URL
-    const url = URL.createObjectURL(pdfBlob);
-    
-    // Create an invisible download link
-    const link = document.createElement('a');
-    link.href = url;
-    link.download = fileName || `processed_${new Date().toISOString().slice(0, 10)}.pdf`;
-    document.body.appendChild(link);
-    
-    // Trigger the download
-    link.click();
-    
-    // Clean up
-    document.body.removeChild(link);
-    window.setTimeout(() => URL.revokeObjectURL(url), 100);
+    try {
+      // Create a proper PDF blob with correct MIME type
+      const pdfBlob = new Blob([result], { type: 'application/pdf' });
+      
+      // Create a temporary URL
+      const url = URL.createObjectURL(pdfBlob);
+      
+      // Create an invisible download link
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = fileName || `processed_${new Date().toISOString().slice(0, 10)}.pdf`;
+      document.body.appendChild(link);
+      
+      // Trigger the download
+      link.click();
+      
+      // Clean up
+      document.body.removeChild(link);
+      
+      // Short delay before revoking the URL to ensure download starts
+      setTimeout(() => {
+        URL.revokeObjectURL(url);
+      }, 100);
 
-    // Confirmation toast
-    toast({
-      title: "Download started",
-      description: "Your file is downloading. Please check your downloads folder.",
-    });
+      // Confirmation toast
+      toast({
+        title: "Download started",
+        description: "Your file is downloading. Please check your downloads folder.",
+      });
+    } catch (error) {
+      console.error("Download error:", error);
+      toast({
+        title: "Download failed",
+        description: "Failed to download the file. Please try again.",
+        variant: "destructive",
+      });
+    }
   };
 
   const handleStartOver = () => {
