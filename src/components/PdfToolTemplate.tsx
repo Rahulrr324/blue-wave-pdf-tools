@@ -5,6 +5,7 @@ import FileDropzone from './FileDropzone';
 import FilePreview from './FilePreview';
 import ProgressBar from './ProgressBar';
 import { toast } from '@/components/ui/use-toast';
+import { Download } from 'lucide-react';
 
 interface PdfToolTemplateProps {
   title: string;
@@ -29,6 +30,7 @@ const PdfToolTemplate: React.FC<PdfToolTemplateProps> = ({
   const [processing, setProcessing] = useState(false);
   const [progress, setProgress] = useState(0);
   const [result, setResult] = useState<Blob | null>(null);
+  const [fileName, setFileName] = useState<string>("");
   const [previews, setPreviews] = useState<Record<string, string>>({});
   const isMounted = useRef(true);
 
@@ -88,6 +90,24 @@ const PdfToolTemplate: React.FC<PdfToolTemplateProps> = ({
       setProcessing(true);
       setProgress(0);
 
+      // Generate output filename
+      const timestamp = new Date().toISOString().replace(/[:.]/g, '-').substring(0, 19);
+      let outputFileName = `processed_${timestamp}.pdf`;
+      
+      // Use first file name as base if only one file
+      if (files.length === 1) {
+        const baseName = files[0].name.replace(/\.[^/.]+$/, ""); // Remove extension
+        outputFileName = `${baseName}_processed.pdf`;
+      } else if (title.toLowerCase().includes("merge")) {
+        outputFileName = `merged_document_${timestamp}.pdf`;
+      } else if (title.toLowerCase().includes("compress")) {
+        outputFileName = `compressed_${files[0].name}`;
+      } else if (title.toLowerCase().includes("convert")) {
+        outputFileName = `converted_document.pdf`;
+      }
+      
+      setFileName(outputFileName);
+
       // Simulate progress
       const progressInterval = setInterval(() => {
         if (isMounted.current) {
@@ -125,20 +145,37 @@ const PdfToolTemplate: React.FC<PdfToolTemplateProps> = ({
   const handleDownload = () => {
     if (!result) return;
     
-    const url = URL.createObjectURL(result);
+    // Ensure we're creating a proper PDF blob with correct MIME type
+    const pdfBlob = new Blob([result], { type: 'application/pdf' });
+    
+    // Create a temporary URL
+    const url = URL.createObjectURL(pdfBlob);
+    
+    // Create an invisible download link
     const link = document.createElement('a');
     link.href = url;
-    link.download = `processed_${new Date().toISOString().slice(0, 10)}.pdf`;
+    link.download = fileName || `processed_${new Date().toISOString().slice(0, 10)}.pdf`;
     document.body.appendChild(link);
+    
+    // Trigger the download
     link.click();
+    
+    // Clean up
     document.body.removeChild(link);
-    URL.revokeObjectURL(url);
+    window.setTimeout(() => URL.revokeObjectURL(url), 100);
+
+    // Confirmation toast
+    toast({
+      title: "Download started",
+      description: "Your file is downloading. Please check your downloads folder.",
+    });
   };
 
   const handleStartOver = () => {
     setFiles([]);
     setProgress(0);
     setResult(null);
+    setFileName("");
     
     // Clean up previews
     Object.values(previews).forEach(URL.revokeObjectURL);
@@ -218,7 +255,8 @@ const PdfToolTemplate: React.FC<PdfToolTemplateProps> = ({
                 <h3 className="text-xl font-semibold mb-2">Processing Complete!</h3>
                 <p className="text-gray-600 mb-6">Your files have been successfully processed.</p>
                 <div className="flex flex-col sm:flex-row justify-center gap-3">
-                  <Button onClick={handleDownload} className="bg-primary-600 hover:bg-primary-700">
+                  <Button onClick={handleDownload} className="bg-primary-600 hover:bg-primary-700 flex items-center gap-2">
+                    <Download className="h-4 w-4" />
                     Download Result
                   </Button>
                   <Button variant="outline" onClick={handleStartOver}>

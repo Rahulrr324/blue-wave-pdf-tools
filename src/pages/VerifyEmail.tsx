@@ -7,10 +7,11 @@ import { useToast } from '@/hooks/use-toast';
 import Layout from '../components/Layout';
 
 const VerifyEmail = () => {
-  const [verificationCode, setVerificationCode] = useState('');
+  const [verificationCode, setVerificationCode] = useState<string[]>(Array(6).fill(''));
   const [isLoading, setIsLoading] = useState(false);
   const [resendDisabled, setResendDisabled] = useState(false);
   const [countdown, setCountdown] = useState(0);
+  const inputRefs = Array(6).fill(0).map(() => React.createRef<HTMLInputElement>());
   const location = useLocation();
   const navigate = useNavigate();
   const { toast } = useToast();
@@ -18,6 +19,11 @@ const VerifyEmail = () => {
   const email = location.state?.email;
   
   useEffect(() => {
+    // Focus first input on component mount
+    if (inputRefs[0].current) {
+      inputRefs[0].current.focus();
+    }
+    
     if (!email) {
       navigate('/signup');
     }
@@ -34,9 +40,63 @@ const VerifyEmail = () => {
     return () => clearInterval(interval);
   }, [email, navigate, countdown]);
 
+  const handleInputChange = (index: number, value: string) => {
+    if (value.length > 1) {
+      // Handle paste event
+      const pastedValue = value.slice(0, 6);
+      const newVerificationCode = [...verificationCode];
+      
+      for (let i = 0; i < pastedValue.length && index + i < 6; i++) {
+        if (/^[0-9]$/.test(pastedValue[i])) {
+          newVerificationCode[index + i] = pastedValue[i];
+        }
+      }
+      
+      setVerificationCode(newVerificationCode);
+      
+      // Focus the next empty input or the last input
+      for (let i = 0; i < 6; i++) {
+        if (newVerificationCode[i] === '' && inputRefs[i].current) {
+          inputRefs[i].current!.focus();
+          break;
+        } else if (i === 5) {
+          inputRefs[5].current!.focus();
+        }
+      }
+    } else if (/^[0-9]$/.test(value) || value === '') {
+      // Handle single digit input
+      const newVerificationCode = [...verificationCode];
+      newVerificationCode[index] = value;
+      setVerificationCode(newVerificationCode);
+      
+      // Automatically focus next input
+      if (value && index < 5 && inputRefs[index + 1].current) {
+        inputRefs[index + 1].current!.focus();
+      }
+    }
+  };
+  
+  const handleKeyDown = (index: number, e: React.KeyboardEvent<HTMLInputElement>) => {
+    // Move focus to previous input on backspace if current input is empty
+    if (e.key === 'Backspace' && !verificationCode[index] && index > 0) {
+      if (inputRefs[index - 1].current) {
+        inputRefs[index - 1].current!.focus();
+      }
+    }
+  };
+
   const handleVerify = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!verificationCode.trim()) return;
+    const code = verificationCode.join('');
+    
+    if (code.length !== 6 || !/^\d+$/.test(code)) {
+      toast({
+        title: "Invalid code format",
+        description: "Please enter all 6 digits of your verification code.",
+        variant: "destructive"
+      });
+      return;
+    }
     
     setIsLoading(true);
     
@@ -47,7 +107,7 @@ const VerifyEmail = () => {
       // Check verification code
       const users = JSON.parse(localStorage.getItem('users') || '[]');
       const userIndex = users.findIndex((user: any) => 
-        user.email === email && user.verificationCode === verificationCode
+        user.email === email && user.verificationCode === code
       );
       
       if (userIndex !== -1) {
@@ -127,19 +187,26 @@ const VerifyEmail = () => {
 
           <form onSubmit={handleVerify} className="space-y-6">
             <div>
-              <label htmlFor="code" className="block text-sm font-medium text-gray-700 mb-1">
-                Verification Code
+              <label className="block text-sm font-medium text-gray-700 mb-3">
+                Enter Verification Code
               </label>
-              <Input
-                id="code"
-                type="text"
-                value={verificationCode}
-                onChange={e => setVerificationCode(e.target.value)}
-                placeholder="Enter 6-digit code"
-                className="text-center text-lg tracking-widest"
-                maxLength={6}
-                required
-              />
+              <div className="flex justify-between gap-2">
+                {verificationCode.map((digit, index) => (
+                  <Input
+                    key={index}
+                    ref={inputRefs[index]}
+                    type="text"
+                    inputMode="numeric"
+                    pattern="[0-9]*"
+                    maxLength={6}
+                    value={digit}
+                    onChange={(e) => handleInputChange(index, e.target.value)}
+                    onKeyDown={(e) => handleKeyDown(index, e)}
+                    className="w-12 h-12 text-center text-xl"
+                    autoComplete="one-time-code"
+                  />
+                ))}
+              </div>
             </div>
 
             <Button type="submit" className="w-full" disabled={isLoading}>

@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { z } from 'zod';
 import { useForm } from 'react-hook-form';
@@ -13,7 +13,8 @@ import { Lock, Mail } from 'lucide-react';
 
 const formSchema = z.object({
   email: z.string().email({ message: 'Please enter a valid email address' }),
-  password: z.string().min(8, { message: 'Password must be at least 8 characters long' })
+  password: z.string().min(8, { message: 'Password must be at least 8 characters long' }),
+  rememberMe: z.boolean().default(false)
 });
 
 const Login = () => {
@@ -25,9 +26,19 @@ const Login = () => {
     resolver: zodResolver(formSchema),
     defaultValues: {
       email: '',
-      password: ''
+      password: '',
+      rememberMe: false
     }
   });
+
+  // Check for saved login info on component mount
+  useEffect(() => {
+    const savedEmail = localStorage.getItem('rememberedEmail');
+    if (savedEmail) {
+      form.setValue('email', savedEmail);
+      form.setValue('rememberMe', true);
+    }
+  }, [form]);
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     setIsLoading(true);
@@ -47,11 +58,28 @@ const Login = () => {
             description: "Please verify your email before logging in.",
             variant: "destructive"
           });
+          navigate('/verify-email', { state: { email: values.email } });
           setIsLoading(false);
           return;
         }
         
-        localStorage.setItem('currentUser', JSON.stringify(user));
+        // Save user session
+        const userSession = {
+          id: user.id,
+          name: user.name,
+          email: user.email,
+          isLoggedIn: true,
+          lastLogin: new Date().toISOString()
+        };
+        
+        localStorage.setItem('currentUser', JSON.stringify(userSession));
+        
+        // Remember email if rememberMe is checked
+        if (values.rememberMe) {
+          localStorage.setItem('rememberedEmail', values.email);
+        } else {
+          localStorage.removeItem('rememberedEmail');
+        }
         
         toast({
           title: "Login successful",
@@ -115,7 +143,12 @@ const Login = () => {
                 name="password"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Password</FormLabel>
+                    <div className="flex justify-between items-center">
+                      <FormLabel>Password</FormLabel>
+                      <Link to="/forgot-password" className="text-xs text-primary-600 hover:text-primary-500">
+                        Forgot password?
+                      </Link>
+                    </div>
                     <div className="relative">
                       <Lock className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
                       <FormControl>
@@ -128,6 +161,27 @@ const Login = () => {
                       </FormControl>
                     </div>
                     <FormMessage />
+                  </FormItem>
+                )}
+              />
+              
+              <FormField
+                control={form.control}
+                name="rememberMe"
+                render={({ field }) => (
+                  <FormItem className="flex items-center space-x-2">
+                    <FormControl>
+                      <input
+                        type="checkbox"
+                        className="w-4 h-4 text-primary-600 border-gray-300 rounded focus:ring-primary-500"
+                        checked={field.value}
+                        onChange={field.onChange}
+                        id="rememberMe"
+                      />
+                    </FormControl>
+                    <label htmlFor="rememberMe" className="text-sm text-gray-600">
+                      Remember me
+                    </label>
                   </FormItem>
                 )}
               />

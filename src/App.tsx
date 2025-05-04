@@ -16,6 +16,11 @@ import Login from "./pages/Login";
 import Signup from "./pages/Signup";
 import VerifyEmail from "./pages/VerifyEmail";
 import NotFound from "./pages/NotFound";
+import Terms from "./pages/Terms";
+import Privacy from "./pages/Privacy";
+import Cookies from "./pages/Cookies";
+import Contact from "./pages/Contact";
+import Faq from "./pages/Faq";
 
 // Create a QueryClient for React Query
 const queryClient = new QueryClient();
@@ -38,6 +43,11 @@ const App = () => (
           <Route path="/login" element={<Login />} />
           <Route path="/signup" element={<Signup />} />
           <Route path="/verify-email" element={<VerifyEmail />} />
+          <Route path="/terms" element={<Terms />} />
+          <Route path="/privacy" element={<Privacy />} />
+          <Route path="/cookies" element={<Cookies />} />
+          <Route path="/contact" element={<Contact />} />
+          <Route path="/faq" element={<Faq />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
