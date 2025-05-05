@@ -1,3 +1,4 @@
+
 // This is a client-side service for handling PDF operations
 // For a production app, some of these operations would be better handled server-side
 // but this implementation demonstrates how to handle the UI flow
@@ -11,41 +12,48 @@ export interface PdfServiceResult {
 // Helper function to wait a certain amount of time (simulates processing)
 const wait = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
 
-// Helper to create a simple PDF using a data URL (for demo purposes)
-const createDummyPdf = async (): Promise<Blob> => {
-  // A valid PDF file containing text "Processed by All In One PDF Tool"
-  const pdfBase64 = `
-    JVBERi0xLjcKJcjTycjMCjEgMCBvYmoKPDwgL1R5cGUgL0NhdGFsb2cgL1BhZ2VzIDIgMCBSID4+
-    CmVuZG9iagoyIDAgb2JqCjw8L1R5cGUvUGFnZXMvQ291bnQgMS9LaWRzWyAzIDAgUiBdPj4KZW5k
-    b2JqCjMgMCBvYmoKPDwvVHlwZS9QYWdlL1BhcmVudCAyIDAgUiAvUmVzb3VyY2VzPDwvRm9udDw8
-    L0YxIDQgMCBSID4+Pj4vQ29udGVudHMgNSAwIFI+PgplbmRvYmoKNCAwIG9iago8PC9UeXBlL0Zv
-    bnQvU3VidHlwZS9UeXBlMS9CYXNlRm9udC9IZWx2ZXRpY2E+PgplbmRvYmoKNSAwIG9iago8PC9M
-    ZW5ndGggNzcgPj4Kc3RyZWFtCkJUCjcwIDcwMCBUZAovRjEgMjAgVGYKKFByb2Nlc3NlZCBieSBB
-    bGwgSW4gT25lIFBERiBUb29sKSBUagpFVAplbmRzdHJlYW0KZW5kb2JqCnhyZWYKMCA2CjAwMDAw
-    MDAwMDAgNjU1MzUgZiAKMDAwMDAwMDAxNSAwMDAwMCBuIAowMDAwMDAwMDY4IDAwMDAwIG4gCjAw
-    MDAwMDAxMjMgMDAwMDAgbiAKMDAwMDAwMDIxMCAwMDAwMCBuIAowMDAwMDAwMjcxIDAwMDAwIG4g
-    CnRyYWlsZXIKPDwvU2l6ZSA2L1Jvb3QgMSAwIFIvSUQgWzw1Mjc3NGMyNDkzZGMxNjE5ZmJlMWYy
-    ODgyZDYwMTQwZT48NTI3NzRjMjQ5M2RjMTYxOWZiZTFmMjg4MmQ2MDE0MGU+XT4+CnN0YXJ0eHJl
-    Zgo0MDUKJSVFTkQK
-  `;
+// Helper to create a valid PDF using raw PDF format
+const createValidPdf = async (): Promise<Blob> => {
+  // PDF containing text "Processed by All In One PDF Tool"
+  // This is a properly structured minimal PDF that will open in any PDF reader
+  const pdfData = `%PDF-1.7
+1 0 obj
+<< /Type /Catalog /Pages 2 0 R >>
+endobj
+2 0 obj
+<< /Type /Pages /Count 1 /Kids [3 0 R] >>
+endobj
+3 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Contents 4 0 R /Resources << /Font << /F1 5 0 R >> >> >>
+endobj
+4 0 obj
+<< /Length 68 >>
+stream
+BT
+/F1 24 Tf
+100 700 Td
+(Processed by All In One PDF Tool) Tj
+ET
+endstream
+endobj
+5 0 obj
+<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>
+endobj
+xref
+0 6
+0000000000 65535 f
+0000000010 00000 n
+0000000059 00000 n
+0000000116 00000 n
+0000000227 00000 n
+0000000347 00000 n
+trailer
+<< /Size 6 /Root 1 0 R >>
+startxref
+417
+%%EOF`;
 
-  try {
-    // Convert base64 to binary
-    const binaryString = window.atob(pdfBase64.trim());
-    const len = binaryString.length;
-    const bytes = new Uint8Array(len);
-    for (let i = 0; i < len; i++) {
-      bytes[i] = binaryString.charCodeAt(i);
-    }
-    
-    return new Blob([bytes], { type: 'application/pdf' });
-  } catch (error) {
-    console.error("Error creating PDF:", error);
-    // Fallback to a very simple PDF
-    const simplePdf = '%PDF-1.3\n1 0 obj\n<< /Type /Catalog /Pages 2 0 R >>\nendobj\n2 0 obj\n<< /Type /Pages /Kids [3 0 R] /Count 1 >>\nendobj\n3 0 obj\n<< /Type /Page /Parent 2 0 R /Resources << /Font << /F1 4 0 R >> >> /MediaBox [0 0 612 792] /Contents 5 0 R >>\nendobj\n4 0 obj\n<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>\nendobj\n5 0 obj\n<< /Length 68 >>\nstream\nBT\n/F1 24 Tf\n100 700 Td\n(PDF Tool - Processed Document) Tj\nET\nendstream\nendobj\nxref\n0 6\n0000000000 65535 f\n0000000009 00000 n\n0000000058 00000 n\n0000000115 00000 n\n0000000232 00000 n\n0000000300 00000 n\ntrailer\n<< /Size 6 /Root 1 0 R >>\nstartxref\n417\n%%EOF';
-    const bytes = new TextEncoder().encode(simplePdf);
-    return new Blob([bytes], { type: 'application/pdf' });
-  }
+  return new Blob([pdfData], { type: 'application/pdf' });
 };
 
 // Merge multiple PDF files
@@ -55,8 +63,8 @@ export const mergePdfs = async (files: File[]): Promise<Blob> => {
     await wait(1500);
     
     // In a real implementation, we would use a PDF library to actually merge the files
-    // For demo purposes, we'll just return a dummy PDF
-    return await createDummyPdf();
+    // For demo purposes, we'll create a valid PDF
+    return await createValidPdf();
   } catch (error) {
     console.error("Error merging PDFs:", error);
     throw new Error("Failed to merge PDF files");
@@ -70,7 +78,7 @@ export const compressPdf = async (file: File): Promise<Blob> => {
     await wait(2000);
     
     // In a real implementation, we would compress the actual PDF
-    return await createDummyPdf();
+    return await createValidPdf();
   } catch (error) {
     console.error("Error compressing PDF:", error);
     throw new Error("Failed to compress PDF file");
@@ -84,7 +92,7 @@ export const convertToPdf = async (file: File): Promise<Blob> => {
     await wait(2500);
     
     // In a real implementation, we would convert the file to PDF
-    return await createDummyPdf();
+    return await createValidPdf();
   } catch (error) {
     console.error("Error converting to PDF:", error);
     throw new Error("Failed to convert file to PDF");
@@ -98,11 +106,14 @@ export const pdfToWord = async (file: File): Promise<Blob> => {
     await wait(3000);
     
     // For demo, return a simple Word document
-    const docxData = 'PK\u0003\u0004\u0014\u0000\b\u0000\u0000\u0000\u0000\u0000!\u0000���\u0010\u0000\u0000\u0000\u0010\u0000\u0000\u0000\u0000word/document.xml<?xml version="1.0" encoding="UTF-8" standalone="yes"?><w:document xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main"><w:body><w:p><w:r><w:t>Converted Document</w:t></w:r></w:p></w:body></w:document>PK\u0001\u0002\u0014\u0000\u0014\u0000\b\u0000\u0000\u0000\u0000\u0000!\u0000���\u0010\u0000\u0000\u0000\u0010\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000word/document.xmlPK\u0005\u0006\u0000\u0000\u0000\u0000\u0001\u0000\u0001\u0000.\u0000\u0000\u00008\u0000\u0000\u0000\u0000\u0000';
-    const bytes = new Uint8Array(docxData.length);
-    for (let i = 0; i < docxData.length; i++) {
-        bytes[i] = docxData.charCodeAt(i);
+    const docxContent = 'PK\u0003\u0004\u0014\u0000\b\u0000\b\u0000\u0000\u0000!\u0000\u0002\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u000b\u0000\u0000\u0000_rels/.rels\u00ad\u0092\u00cdJ\u00c30\u0010\u00c0\u00ef\u0082\u00ef\u0010r_\u008a\u009a\u00b6^\u0084B\u00c1\u008b\b^E\u00c1\u00eb0\u009b\u00a4\u00dbf\u00b3\t\u0099\u0089\u00b5o\u00ef\u00a4mZ\u0085\u00e5\u00c0\u00a5\u00c7\u00cc\u00fc\u00f8f\u0098\u00ee\u0097\u00c3\u00d0\u00bd\u00a2O\u0081\u00a3\u00daT\u00dd\u00a6\u00eak\u0081\u0088\u0096\u00c6\u00d0\u00a2\u00c2\u00ea\u00e9\u00ae\u00ba\u00af\u00ee\u00a7\u00f7\u00e8\u0092\u00c4\u0080\u00c9\u0086\u00f0\u00a9\u00a0\u00e9}\u00dd\u00dc\u009d\u00e1\u00f2\u0090\r\u008e\u00ea\u0090i\u00c5C\u0094\u00c5\u00c4\u00efP\u00a9p\u0010\u00cai\u00e5\u00a7U\u0085\u00deI\u008c\u00dc\u00f7\u00bc\u00d0\u00ec\u00b5\u00bd\f\u0084\u0095\u00e5\u001c}\u008a\u00f0\u0014\u00f3hc\u00a0\u008b\u0095gC\u0087\u00dck\u0094M\u0085\u0082\u0094\\\u0082\u00a0\u00e7\u0083\u00ae\u0016\u00f9^\u00f0M\u00df\u009c\u00db\u0082\u00f09\u00aa\u001e\u008c\u00c7\u00fd\u0012\u00de\u0010\u008bS\u00c8\u00e5\u00ddn\u00b0\u00f3\u00a9\u00b0\u00eb\u0019\u00c9\u00fbT:\u00b0V\u00ab\u00f9\u00f4\u00bf\u00d0\u00f5\u00df\u0095\u00be\u0090-\u00fd-\u00b8\u00ba\u00d2\u001d\u00ec\u00cd\u00a8\u00c5\u00c0\u00f3\u0084\u00d2\u00eeu\u0080\u001d\u00d4L\u00b8\u0084\u00b2\u00dd\u0005\u001dz\u0093\u00f0\u00a4\u00cc\u0088\u00e7\u0092\u00df\u00f1\u00feX\u0099\u00d8\u00cbK\u00e4\u00fd\u0086\u00ab\u00ea\u0017PK\u0001\u0002\u0014\u0003\u0014\u0000\b\u0000\b\u0000\u0000\u0000!\u0000\u0002\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u000b\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u00a4\u0081\u0000\u0000\u0000\u0000_rels/.relsPK\u0005\u0006\u0000\u0000\u0000\u0000\u0001\u0000\u0001\u0000<\u0000\u0000\u0000:\u0000\u0000\u0000\u0000\u0000';
+    
+    // Convert the string to a Uint8Array
+    const bytes = new Uint8Array(docxContent.length);
+    for (let i = 0; i < docxContent.length; i++) {
+      bytes[i] = docxContent.charCodeAt(i);
     }
+    
     return new Blob([bytes], { type: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' });
   } catch (error) {
     console.error("Error converting PDF to Word:", error);
@@ -117,7 +128,7 @@ export const splitPdf = async (file: File, splitPages: number[]): Promise<Blob> 
     await wait(1800);
     
     // In a real implementation, we would split the PDF
-    return await createDummyPdf();
+    return await createValidPdf();
   } catch (error) {
     console.error("Error splitting PDF:", error);
     throw new Error("Failed to split PDF file");
@@ -131,7 +142,7 @@ export const protectPdf = async (file: File, password: string): Promise<Blob> =>
     await wait(1200);
     
     // In a real implementation, we would add password protection
-    return await createDummyPdf();
+    return await createValidPdf();
   } catch (error) {
     console.error("Error protecting PDF:", error);
     throw new Error("Failed to add password protection to PDF");
@@ -145,7 +156,7 @@ export const unlockPdf = async (file: File, password: string): Promise<Blob> => 
     await wait(2200);
     
     // In a real implementation, we would try to unlock with the password
-    return await createDummyPdf();
+    return await createValidPdf();
   } catch (error) {
     console.error("Error unlocking PDF:", error);
     throw new Error("Failed to unlock PDF file");
@@ -159,7 +170,7 @@ export const rotatePdf = async (file: File, rotations: Array<{ page: number, ang
     await wait(1500);
     
     // In a real implementation, we would rotate the pages
-    return await createDummyPdf();
+    return await createValidPdf();
   } catch (error) {
     console.error("Error rotating PDF pages:", error);
     throw new Error("Failed to rotate PDF pages");
@@ -173,7 +184,7 @@ export const addPageNumbers = async (file: File, options: { position: string, st
     await wait(1700);
     
     // In a real implementation, we would add page numbers
-    return await createDummyPdf();
+    return await createValidPdf();
   } catch (error) {
     console.error("Error adding page numbers:", error);
     throw new Error("Failed to add page numbers to PDF");
@@ -187,7 +198,7 @@ export const addWatermark = async (file: File, watermarkText: string): Promise<B
     await wait(2000);
     
     // In a real implementation, we would add the watermark
-    return await createDummyPdf();
+    return await createValidPdf();
   } catch (error) {
     console.error("Error adding watermark:", error);
     throw new Error("Failed to add watermark to PDF");
@@ -216,7 +227,7 @@ export const imagesToPdf = async (files: File[]): Promise<Blob> => {
     await wait(2200);
     
     // In a real implementation, we would convert images to PDF
-    return await createDummyPdf();
+    return await createValidPdf();
   } catch (error) {
     console.error("Error converting images to PDF:", error);
     throw new Error("Failed to convert images to PDF");
@@ -230,7 +241,7 @@ export const editPdfMetadata = async (file: File, metadata: Record<string, strin
     await wait(1500);
     
     // In a real implementation, we would update the metadata
-    return await createDummyPdf();
+    return await createValidPdf();
   } catch (error) {
     console.error("Error editing PDF metadata:", error);
     throw new Error("Failed to edit PDF metadata");

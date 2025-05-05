@@ -1,3 +1,4 @@
+
 import React, { useState, useRef, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import FileDropzone from './FileDropzone';
@@ -103,6 +104,8 @@ const PdfToolTemplate: React.FC<PdfToolTemplateProps> = ({
         outputFileName = `compressed_${files[0].name}`;
       } else if (title.toLowerCase().includes("convert")) {
         outputFileName = `converted_document.pdf`;
+      } else if (title.toLowerCase().includes("word")) {
+        outputFileName = `converted_document.docx`;
       }
       
       setFileName(outputFileName);
@@ -162,10 +165,12 @@ const PdfToolTemplate: React.FC<PdfToolTemplateProps> = ({
       link.click();
       
       // Clean up
+      document.body.removeChild(link);
+
+      // Set a timeout before revoking to ensure download starts
       setTimeout(() => {
         URL.revokeObjectURL(url);
-        document.body.removeChild(link);
-      }, 100);
+      }, 1000);
 
       toast({
         title: "Download started",
@@ -265,7 +270,10 @@ const PdfToolTemplate: React.FC<PdfToolTemplateProps> = ({
                 <h3 className="text-xl font-semibold mb-2">Processing Complete!</h3>
                 <p className="text-gray-600 mb-6">Your files have been successfully processed.</p>
                 <div className="flex flex-col sm:flex-row justify-center gap-3">
-                  <Button onClick={handleDownload} className="bg-primary-600 hover:bg-primary-700 flex items-center gap-2">
+                  <Button 
+                    onClick={handleDownload} 
+                    className="bg-primary-600 hover:bg-primary-700 flex items-center gap-2"
+                  >
                     <Download className="h-4 w-4" />
                     Download Result
                   </Button>
