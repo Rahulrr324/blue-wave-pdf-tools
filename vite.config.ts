@@ -34,7 +34,9 @@ export default defineConfig(({ mode }) => ({
         },
         // Ensure assets are loaded correctly with relative paths
         assetFileNames: (assetInfo) => {
-          let extType = assetInfo.name.split('.').at(1);
+          if (!assetInfo.name) return 'assets/[name]-[hash][extname]';
+          
+          let extType = assetInfo.name.split('.').at(1) || '';
           if (/png|jpe?g|svg|gif|tiff|bmp|ico/i.test(extType)) {
             extType = 'img';
           }
