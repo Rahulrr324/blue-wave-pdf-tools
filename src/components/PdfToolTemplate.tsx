@@ -42,6 +42,22 @@ const PdfToolTemplate: React.FC<PdfToolTemplateProps> = ({
     };
   }, [previews]);
 
+  // Generate previews for files when they're added
+  useEffect(() => {
+    // Only try to create previews for PDF files
+    files.forEach(file => {
+      if (file.type === 'application/pdf' && !previews[file.name]) {
+        // For PDF files, we could generate a thumbnail or just use an icon
+        // This is a simplified approach
+        const objectUrl = URL.createObjectURL(file);
+        setPreviews(prev => ({
+          ...prev,
+          [file.name]: objectUrl
+        }));
+      }
+    });
+  }, [files, previews]);
+
   const handleFilesAdded = (newFiles: File[]) => {
     setFiles(prevFiles => {
       // Avoid adding duplicates
@@ -121,7 +137,9 @@ const PdfToolTemplate: React.FC<PdfToolTemplateProps> = ({
       }, 300);
 
       // Process files
+      console.log("Processing files:", files);
       const resultBlob = await processFiles(files);
+      console.log("Processing complete, result blob size:", resultBlob.size);
       
       // Clear interval and set final state
       clearInterval(progressInterval);
@@ -129,12 +147,17 @@ const PdfToolTemplate: React.FC<PdfToolTemplateProps> = ({
       if (isMounted.current) {
         setProgress(100);
         setResult(resultBlob);
+        
+        toast({
+          title: "Processing complete",
+          description: "Your file has been successfully processed.",
+        });
       }
     } catch (error) {
       console.error('Error processing files:', error);
       toast({
         title: "Processing failed",
-        description: "An error occurred while processing your files. Please try again.",
+        description: error instanceof Error ? error.message : "An error occurred while processing your files. Please try again.",
         variant: "destructive",
       });
     } finally {
@@ -148,6 +171,9 @@ const PdfToolTemplate: React.FC<PdfToolTemplateProps> = ({
     if (!result) return;
     
     try {
+      console.log("Downloading result, blob size:", result.size);
+      console.log("File type:", result.type);
+      
       // Create a download URL for the blob
       const url = URL.createObjectURL(result);
       

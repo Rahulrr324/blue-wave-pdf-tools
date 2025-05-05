@@ -2,6 +2,12 @@
 # Enable rewriting
 RewriteEngine On
 
+# Create an environment variable for HTTPS detection
+RewriteCond %{HTTPS} on
+RewriteRule ^ - [E=PROTO:https]
+RewriteCond %{HTTPS} !on
+RewriteRule ^ - [E=PROTO:http]
+
 # If the request is not for a real file or directory
 RewriteCond %{REQUEST_FILENAME} !-f
 RewriteCond %{REQUEST_FILENAME} !-d
@@ -11,7 +17,7 @@ RewriteRule ^(.*)$ index.html [QSA,L]
 
 # Compress text files
 <IfModule mod_deflate.c>
-  AddOutputFilterByType DEFLATE text/html text/plain text/xml text/css application/javascript application/json
+  AddOutputFilterByType DEFLATE text/html text/plain text/xml text/css application/javascript application/json application/x-javascript text/javascript
 </IfModule>
 
 # Set browser caching
@@ -27,3 +33,31 @@ RewriteRule ^(.*)$ index.html [QSA,L]
   ExpiresByType application/x-javascript "access plus 1 month"
   ExpiresByType image/x-icon "access plus 1 year"
 </IfModule>
+
+# PHP Settings optimized for InfinityFree
+<IfModule mod_php7.c>
+  php_value upload_max_filesize 50M
+  php_value post_max_size 50M
+  php_value memory_limit 128M
+  php_value max_execution_time 180
+  php_flag display_errors off
+</IfModule>
+
+# Security headers
+<IfModule mod_headers.c>
+  Header set X-Content-Type-Options "nosniff"
+  Header set X-XSS-Protection "1; mode=block"
+  Header set X-Frame-Options "SAMEORIGIN"
+  Header set Referrer-Policy "strict-origin-when-cross-origin"
+
+  # Set cache control for static assets
+  <FilesMatch "\.(ico|pdf|jpg|jpeg|png|gif|js|css|svg)$">
+    Header set Cache-Control "max-age=31536000, public"
+  </FilesMatch>
+</IfModule>
+
+# Prevent directory listing
+Options -Indexes
+
+# Disable server signature
+ServerSignature Off

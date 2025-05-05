@@ -58,15 +58,17 @@ const FileDropzone: React.FC<FileDropzoneProps> = ({
         return true;
       }
       
-      // Check file type
-      const fileExtension = `.${file.name.split('.').pop()?.toLowerCase()}`;
-      if (!acceptedFileTypes.includes(fileExtension) && acceptedFileTypes[0] !== '*') {
-        toast({
-          title: "Invalid file type",
-          description: `${file.name} has an unsupported file type. Accepted types: ${acceptedFileTypes.join(', ')}`,
-          variant: "destructive",
-        });
-        return true;
+      // Check file type if specified types exist
+      if (acceptedFileTypes.length > 0 && acceptedFileTypes[0] !== '*') {
+        const fileExtension = `.${file.name.split('.').pop()?.toLowerCase()}`;
+        if (!acceptedFileTypes.includes(fileExtension)) {
+          toast({
+            title: "Invalid file type",
+            description: `${file.name} has an unsupported file type. Accepted types: ${acceptedFileTypes.join(', ')}`,
+            variant: "destructive",
+          });
+          return true;
+        }
       }
       
       return false;
@@ -91,18 +93,20 @@ const FileDropzone: React.FC<FileDropzoneProps> = ({
       const selectedFiles = Array.from(e.target.files);
       if (validateFiles(selectedFiles)) {
         onFilesAdded(selectedFiles);
+        // Reset the input value to allow selecting the same file again
+        e.target.value = '';
       }
     }
   }, [onFilesAdded, validateFiles]);
   
-  const openFileDialog = () => {
+  const openFileDialog = useCallback(() => {
     inputRef.current?.click();
-  };
+  }, []);
   
   return (
     <div
       className={`border-2 border-dashed rounded-lg p-6 cursor-pointer transition-colors
-        ${isDragging ? 'dropzone-active' : 'border-gray-300 hover:border-primary-400'}
+        ${isDragging ? 'bg-primary-50 border-primary-500' : 'border-gray-300 hover:border-primary-400'}
         ${className}`}
       onDragOver={handleDragOver}
       onDragLeave={handleDragLeave}
@@ -112,7 +116,7 @@ const FileDropzone: React.FC<FileDropzoneProps> = ({
       <input
         ref={inputRef}
         type="file"
-        multiple
+        multiple={maxFiles > 1}
         accept={acceptedFileTypes.join(',')}
         className="hidden"
         onChange={handleFileInputChange}
