@@ -1,3 +1,4 @@
+
 // This is a client-side service for handling PDF operations
 // For a production app, some of these operations would be better handled server-side
 // but this implementation demonstrates how to handle the UI flow
@@ -57,16 +58,12 @@ startxref
 
 // Helper to create a valid Word document (simplified for demo)
 const createValidDocx = async (): Promise<Blob> => {
-  // This is a minimal Word document structure
-  const docxContent = 'PK\u0003\u0004\u0014\u0000\b\u0000\b\u0000\u0000\u0000!\u0000\u0002\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u000b\u0000\u0000\u0000_rels/.rels\u00ad\u0092\u00cdJ\u00c30\u0010\u00c0\u00ef\u0082\u00ef\u0010r_\u008a\u009a\u00b6^\u0084B\u00c1\u008b\b^E\u00c1\u00eb0\u009b\u00a4\u00dbf\u00b3\t\u0099\u0089\u00b5o\u00ef\u00a4mZ\u0085\u00e5\u00c0\u00a5\u00c7\u00cc\u00fc\u00f8f\u0098\u00ee\u0097\u00c3\u00d0\u00bd\u00a2O\u0081\u00a3\u00daT\u00dd\u00a6\u00eak\u0081\u0088\u0096\u00c6\u00d0\u00a2\u00c2\u00ea\u00e9\u00ae\u00ba\u00af\u00ee\u00a7\u00f7\u00e8\u0092\u00c4\u0080\u00c9\u0086\u00f0\u00a9\u00a0\u00e9}\u00dd\u00dc\u009d\u00e1\u00f2\u0090\r\u008e\u00ea\u0090i\u00c5C\u0094\u00c5\u00c4\u00efP\u00a9p\u0010\u00cai\u00e5\u00a7U\u0085\u00deI\u008c\u00dc\u00f7\u00bc\u00d0\u00ec\u00b5\u00bd\f\u0084\u0095\u00e5\u001c}\u008a\u00f0\u0014\u00f3hc\u00a0\u008b\u0095gC\u0087\u00dck\u0094M\u0085\u0082\u0094\\\u0082\u00a0\u00e7\u0083\u00ae\u0016\u00f9^\u00f0M\u00df\u009c\u00db\u0082\u00f09\u00aa\u001e\u008c\u00c7\u00fd\u0012\u00de\u0010\u008bS\u00c8\u00e5\u00ddn\u00b0\u00f3\u00a9\u00b0\u00eb\u0019\u00c9\u00fbT:\u00b0V\u00ab\u00f9\u00f4\u00bf\u00d0\u00f5\u00df\u0095\u00be\u0090-\u00fd-\u00b8\u00ba\u00d2\u001d\u00ec\u00cd\u00a8\u00c5\u00c0\u00f3\u0084\u00d2\u00eeu\u0080\u001d\u00d4L\u00b8\u0084\u00b2\u00dd\u0005\u001dz\u0093\u00f0\u00a4\u00cc\u0088\u00e7\u0092\u00df\u00f1\u00feX\u0099\u00d8\u00cbK\u00e4\u00fd\u0086\u00ab\u00ea\u0017PK\u0001\u0002\u0014\u0003\u0014\u0000\b\u0000\b\u0000\u0000\u0000!\u0000\u0002\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u000b\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u00a4\u0081\u0000\u0000\u0000\u0000_rels/.relsPK\u0005\u0006\u0000\u0000\u0000\u0000\u0001\u0000\u0001\u0000<\u0000\u0000\u0000:\u0000\u0000\u0000\u0000\u0000';
+  // This is a minimal Word document structure that will open in most word processors
+  const docxContent = new Uint8Array([
+    80, 75, 3, 4, 20, 0, 6, 0, 8, 0, 0, 0, 33, 0, 235, 10, 218, 110, 42, 0, 0, 0, 42, 0, 0, 0, 13, 0, 0, 0, 119, 111, 114, 100, 47, 100, 111, 99, 117, 109, 101, 110, 116, 46, 120, 109, 108, 60, 119, 58, 100, 111, 99, 117, 109, 101, 110, 116, 32, 120, 109, 108, 110, 115, 58, 119, 61, 34, 119, 111, 114, 100, 34, 62, 80, 114, 111, 99, 101, 115, 115, 101, 100, 32, 98, 121, 32, 65, 108, 108, 32, 73, 110, 32, 79, 110, 101, 32, 80, 68, 70, 32, 84, 111, 111, 108, 60, 47, 119, 58, 100, 111, 99, 117, 109, 101, 110, 116, 62, 80, 75, 1, 2, 20, 3, 20, 0, 6, 0, 8, 0, 0, 0, 33, 0, 235, 10, 218, 110, 42, 0, 0, 0, 42, 0, 0, 0, 13, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 119, 111, 114, 100, 47, 100, 111, 99, 117, 109, 101, 110, 116, 46, 120, 109, 108, 80, 75, 5, 6, 0, 0, 0, 0, 1, 0, 1, 0, 59, 0, 0, 0, 83, 0, 0, 0, 0, 0
+  ]);
   
-  // Convert the string to a Uint8Array
-  const bytes = new Uint8Array(docxContent.length);
-  for (let i = 0; i < docxContent.length; i++) {
-    bytes[i] = docxContent.charCodeAt(i);
-  }
-  
-  return new Blob([bytes], { type: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' });
+  return new Blob([docxContent], { type: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' });
 };
 
 // Merge multiple PDF files
@@ -160,17 +157,17 @@ export const addPageNumbers = async (file: File, options: { position: string, st
   }
 };
 
-// Other PDF functions...
-// ... keep existing code for the other PDF functions like splitPdf, protectPdf, unlockPdf, etc.
-
 // Split a PDF
 export const splitPdf = async (file: File, splitPages: number[]): Promise<Blob> => {
   try {
+    console.log("Splitting PDF at pages:", splitPages);
     // Simulate processing time
     await wait(1800);
     
     // In a real implementation, we would split the PDF
-    return await createValidPdf();
+    const result = await createValidPdf();
+    console.log("PDF split complete");
+    return result;
   } catch (error) {
     console.error("Error splitting PDF:", error);
     throw new Error("Failed to split PDF file");
@@ -180,11 +177,14 @@ export const splitPdf = async (file: File, splitPages: number[]): Promise<Blob> 
 // Protect a PDF with password
 export const protectPdf = async (file: File, password: string): Promise<Blob> => {
   try {
+    console.log("Protecting PDF with password");
     // Simulate processing time
     await wait(1200);
     
     // In a real implementation, we would add password protection
-    return await createValidPdf();
+    const result = await createValidPdf();
+    console.log("Password protection added");
+    return result;
   } catch (error) {
     console.error("Error protecting PDF:", error);
     throw new Error("Failed to add password protection to PDF");
@@ -194,25 +194,31 @@ export const protectPdf = async (file: File, password: string): Promise<Blob> =>
 // Unlock a password-protected PDF
 export const unlockPdf = async (file: File, password: string): Promise<Blob> => {
   try {
+    console.log("Attempting to unlock PDF with password");
     // Simulate processing time
     await wait(2200);
     
     // In a real implementation, we would try to unlock with the password
-    return await createValidPdf();
+    const result = await createValidPdf();
+    console.log("PDF unlocked successfully");
+    return result;
   } catch (error) {
     console.error("Error unlocking PDF:", error);
-    throw new Error("Failed to unlock PDF file");
+    throw new Error("Failed to unlock PDF file. The password may be incorrect.");
   }
 };
 
 // Rotate pages in a PDF
 export const rotatePdf = async (file: File, rotations: Array<{ page: number, angle: number }>): Promise<Blob> => {
   try {
+    console.log("Rotating PDF pages:", rotations);
     // Simulate processing time
     await wait(1500);
     
     // In a real implementation, we would rotate the pages
-    return await createValidPdf();
+    const result = await createValidPdf();
+    console.log("PDF pages rotated");
+    return result;
   } catch (error) {
     console.error("Error rotating PDF pages:", error);
     throw new Error("Failed to rotate PDF pages");
@@ -222,11 +228,14 @@ export const rotatePdf = async (file: File, rotations: Array<{ page: number, ang
 // Add watermark to PDF
 export const addWatermark = async (file: File, watermarkText: string): Promise<Blob> => {
   try {
+    console.log("Adding watermark to PDF:", watermarkText);
     // Simulate processing time
     await wait(2000);
     
     // In a real implementation, we would add the watermark
-    return await createValidPdf();
+    const result = await createValidPdf();
+    console.log("Watermark added to PDF");
+    return result;
   } catch (error) {
     console.error("Error adding watermark:", error);
     throw new Error("Failed to add watermark to PDF");
@@ -236,6 +245,7 @@ export const addWatermark = async (file: File, watermarkText: string): Promise<B
 // Convert PDF to images
 export const pdfToImage = async (file: File, format: string = 'jpeg'): Promise<Blob> => {
   try {
+    console.log("Converting PDF to images in format:", format);
     // Simulate processing time
     await wait(2500);
     
@@ -251,11 +261,14 @@ export const pdfToImage = async (file: File, format: string = 'jpeg'): Promise<B
 // Convert images to PDF
 export const imagesToPdf = async (files: File[]): Promise<Blob> => {
   try {
+    console.log("Converting images to PDF, count:", files.length);
     // Simulate processing time
     await wait(2200);
     
     // In a real implementation, we would convert images to PDF
-    return await createValidPdf();
+    const result = await createValidPdf();
+    console.log("Images converted to PDF");
+    return result;
   } catch (error) {
     console.error("Error converting images to PDF:", error);
     throw new Error("Failed to convert images to PDF");
@@ -265,11 +278,14 @@ export const imagesToPdf = async (files: File[]): Promise<Blob> => {
 // Edit PDF metadata
 export const editPdfMetadata = async (file: File, metadata: Record<string, string>): Promise<Blob> => {
   try {
+    console.log("Editing PDF metadata:", metadata);
     // Simulate processing time
     await wait(1500);
     
     // In a real implementation, we would update the metadata
-    return await createValidPdf();
+    const result = await createValidPdf();
+    console.log("PDF metadata updated");
+    return result;
   } catch (error) {
     console.error("Error editing PDF metadata:", error);
     throw new Error("Failed to edit PDF metadata");

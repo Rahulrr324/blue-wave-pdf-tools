@@ -126,15 +126,15 @@ const PdfToolTemplate: React.FC<PdfToolTemplateProps> = ({
       
       setFileName(outputFileName);
 
-      // Simulate progress
+      // Simulate progress with smoother animation
       const progressInterval = setInterval(() => {
         if (isMounted.current) {
           setProgress(prev => {
-            const newProgress = prev + (Math.random() * 15);
+            const newProgress = prev + (Math.random() * 10);
             return newProgress >= 90 ? 90 : newProgress;
           });
         }
-      }, 300);
+      }, 500);
 
       // Process files
       console.log("Processing files:", files);
@@ -171,32 +171,29 @@ const PdfToolTemplate: React.FC<PdfToolTemplateProps> = ({
     if (!result) return;
     
     try {
-      console.log("Downloading result, blob size:", result.size);
+      console.log("Downloading result, blob size:", result.size, "bytes");
       console.log("File type:", result.type);
       
       // Create a download URL for the blob
       const url = URL.createObjectURL(result);
       
-      // Create an invisible download link
+      // Create an invisible download link and trigger download immediately
       const link = document.createElement('a');
       link.href = url;
       
       // Use original file name or generate one
       const downloadFileName = fileName || `processed_${new Date().getTime()}.pdf`;
-      
       link.download = downloadFileName;
+      
+      // Append, click, and remove
       document.body.appendChild(link);
-      
-      // Trigger the download
       link.click();
-      
-      // Clean up
       document.body.removeChild(link);
-
+      
       // Set a timeout before revoking to ensure download starts
       setTimeout(() => {
         URL.revokeObjectURL(url);
-      }, 1000);
+      }, 2000); // Longer timeout to ensure download completes
 
       toast({
         title: "Download started",

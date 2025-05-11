@@ -61,13 +61,18 @@ const FileDropzone: React.FC<FileDropzoneProps> = ({
       // Check file type if specified types exist
       if (acceptedFileTypes.length > 0 && acceptedFileTypes[0] !== '*') {
         const fileExtension = `.${file.name.split('.').pop()?.toLowerCase()}`;
-        if (!acceptedFileTypes.includes(fileExtension)) {
-          toast({
-            title: "Invalid file type",
-            description: `${file.name} has an unsupported file type. Accepted types: ${acceptedFileTypes.join(', ')}`,
-            variant: "destructive",
-          });
-          return true;
+        
+        // Special case for MIME types instead of extensions
+        if (file.type && acceptedFileTypes.some(type => type.startsWith('.'))) {
+          // Check if any accepted file extension matches this file's extension
+          if (!acceptedFileTypes.includes(fileExtension)) {
+            toast({
+              title: "Invalid file type",
+              description: `${file.name} has an unsupported file type. Accepted types: ${acceptedFileTypes.join(', ')}`,
+              variant: "destructive",
+            });
+            return true;
+          }
         }
       }
       
